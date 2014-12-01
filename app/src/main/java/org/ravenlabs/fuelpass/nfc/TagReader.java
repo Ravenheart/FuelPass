@@ -28,16 +28,18 @@ public class TagReader implements NfcAdapter.ReaderCallback {
 
     public boolean Initialize()
     {
-        mNfc = NfcAdapter.getDefaultAdapter(mContext);
-        if (mNfc == null) {
-            mCallback.get().OnToast("No NFC hardware!");
-            mCallback.get().OnCloseDialog();
-            return false;
-        }
-        if (!mNfc.isEnabled()) {
-            mCallback.get().OnToast("NFC is disabled!");
-            mCallback.get().OnCloseDialog();
-            return false;
+        if(mNfc == null) {
+            mNfc = NfcAdapter.getDefaultAdapter(mContext);
+            if (mNfc == null) {
+                mCallback.get().OnToast("No NFC hardware!");
+                mCallback.get().OnCloseDialog();
+                return false;
+            }
+            if (!mNfc.isEnabled()) {
+                mCallback.get().OnToast("NFC is disabled!");
+                mCallback.get().OnCloseDialog();
+                return false;
+            }
         }
 
         return true;

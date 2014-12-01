@@ -8,19 +8,24 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.CharacterPickerDialog;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.ravenlabs.fuelpass.core.NumberUtils;
 import org.ravenlabs.fuelpass.core.UIUtils;
 import org.ravenlabs.fuelpass.models.FuelPassModel;
+import org.ravenlabs.fuelpass.models.FuelType;
 import org.w3c.dom.Text;
 
 import java.math.BigDecimal;
@@ -30,11 +35,11 @@ public class FuelPassFragment extends Fragment {
 
     private static final String VIEW_MODEL = "VIEW_MODEL";
     private FuelPassModel mViewModel;
-    private EditText mFuelPrice;
-    private EditText mDiscount;
-    private EditText mAmount;
+
+    private EditText mFuelPrice,mDiscount, mAmount;
     private ImageButton mRefresh;
     private TextView mResult;
+    private Spinner mFuelType;
 
     private OnFragmentInteractionListener mListener;
 
@@ -66,12 +71,14 @@ public class FuelPassFragment extends Fragment {
         mAmount = (EditText) v.findViewById(R.id.txt_amount);
         mRefresh = (ImageButton) v.findViewById(R.id.btn_refresh);
         mResult = (TextView) v.findViewById(R.id.txt_result);
+        mFuelType = (Spinner)v.findViewById(R.id.spin_fuel_type);
 
         SetupFragment(v);
         BindFuelPrice();
         BindDiscount();
         BindAmount();
         BindRefresh();
+        BindFuelType();
 
         return v;
     }
@@ -160,6 +167,39 @@ public class FuelPassFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 mResult.setText(mViewModel.getResult().toString());
+            }
+        });
+    }
+
+    private void BindFuelType()
+    {
+        FuelType[] fuels = FuelType.values();
+        String[] fuelStrings= new String[fuels.length];
+        for(int i=0;i<fuels.length;i++)
+            fuelStrings[i] = fuels[i].name();
+        /*ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                getActivity(),
+                R.array.fuel_types,
+                android.R.layout.simple_spinner_item);*/
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                getActivity(),
+                android.R.layout.simple_spinner_item,
+                fuelStrings
+                );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mFuelType.setAdapter(adapter);
+
+        mFuelType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+                String fuel = adapterView.getItemAtPosition(pos).toString();
+                mViewModel.setFuelType(FuelType.valueOf(fuel));
+                mDiscount.setText(mViewModel.getDiscount().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
             }
         });
     }

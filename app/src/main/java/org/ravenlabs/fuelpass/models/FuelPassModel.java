@@ -1,6 +1,7 @@
 package org.ravenlabs.fuelpass.models;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -16,6 +17,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Calendar;
 
 
 public class FuelPassModel implements Parcelable {
@@ -27,6 +29,7 @@ public class FuelPassModel implements Parcelable {
     private BigDecimal mFuelPrice;
     private BigDecimal mDiscount;
     private BigDecimal mMoneyAmount;
+    private FuelType mFuelType;
     private String mNfcTag;
 
     public BigDecimal getFuelPrice() {
@@ -53,8 +56,41 @@ public class FuelPassModel implements Parcelable {
         this.mMoneyAmount = mAmount;
     }
 
-    public String getNfcTag() { return mNfcTag; }
-    public void setNfcTag(String mNfcTag){this.mNfcTag = mNfcTag;}
+    public String getNfcTag() {
+        return mNfcTag;
+    }
+
+    public void setNfcTag(String mNfcTag) {
+        this.mNfcTag = mNfcTag;
+    }
+
+    public FuelType getFuelType() {
+        return mFuelType;
+    }
+
+    public void setFuelType(FuelType fuel) {
+        mFuelType = fuel;
+
+        Calendar c = Calendar.getInstance();
+        int day = c.get(Calendar.DAY_OF_WEEK);
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+
+        if (day != Calendar.SUNDAY && hour >= 7 && hour <= 18) {
+            if (fuel == FuelType.A95 || fuel == FuelType.Diesel)
+                this.setDiscount(new BigDecimal("0.07", MathContext.DECIMAL32));
+            if (fuel == FuelType.A98)
+                this.setDiscount(new BigDecimal("0.10", MathContext.DECIMAL32));
+            if (fuel == FuelType.LPG)
+                this.setDiscount(new BigDecimal("0.07", MathContext.DECIMAL32));
+        } else {
+            if (fuel == FuelType.A95 || fuel == FuelType.Diesel)
+                this.setDiscount(new BigDecimal("0.09", MathContext.DECIMAL32));
+            if (fuel == FuelType.A98)
+                this.setDiscount(new BigDecimal("0.10", MathContext.DECIMAL32));
+            if (fuel == FuelType.LPG)
+                this.setDiscount(new BigDecimal("0.08", MathContext.DECIMAL32));
+        }
+    }
 
     public BigDecimal getResult() {
         BigDecimal fuelPrice = mFuelPrice.subtract(mDiscount, MathContext.DECIMAL32);
@@ -72,6 +108,7 @@ public class FuelPassModel implements Parcelable {
         parcel.writeSerializable(mFuelPrice);
         parcel.writeSerializable(mDiscount);
         parcel.writeSerializable(mMoneyAmount);
+        parcel.writeInt(mFuelType.ordinal());
         parcel.writeString(mNfcTag);
     }
 
@@ -90,6 +127,7 @@ public class FuelPassModel implements Parcelable {
         this.mFuelPrice = (BigDecimal) in.readSerializable();
         this.mDiscount = (BigDecimal) in.readSerializable();
         this.mMoneyAmount = (BigDecimal) in.readSerializable();
+        this.mFuelType = FuelType.values()[in.readInt()];
         this.mNfcTag = in.readString();
     }
 
@@ -97,38 +135,51 @@ public class FuelPassModel implements Parcelable {
         this.mFuelPrice = new BigDecimal("2.30", MathContext.DECIMAL32);
         this.mDiscount = new BigDecimal("0.00", MathContext.DECIMAL32);
         this.mMoneyAmount = new BigDecimal("0.00", MathContext.DECIMAL32);
+        this.mFuelType = FuelType.A98;
         this.mNfcTag = null;
     }
 
 
+    public static FuelPassModel GetInstance(Context c) {
+        return FuelPassModel.GetInstance(c, null);
+    }
 
-    public static FuelPassModel GetInstance(Context c)
-    {
-        if(_Instance == null) {
-            try {
-                InputStream io = c.openFileInput(FilePath);
-                InputStreamReader reader = new InputStreamReader(io);
-                Gson gson = new Gson();
-                _Instance = gson.fromJson(reader,FuelPassModel.class);
-                if(_Instance == null)
-                    _Instance = new FuelPassModel();
-                reader.close();
+    public static FuelPassModel GetInstance(Context c, Bundle b) {
+        if (_Instance == null) {
+            if (b != null && b.containsKey(TAG)) {
+                _Instance = (FuelPassModel) b.getParcelable(TAG);
             }
-            catch (Exception ex)
-            {
-                Log.d(TAG,ex.toString());
-                return new FuelPassModel();
+            if (_Instance == null) {
+                try {
+                    InputStream io = c.openFileInput(FilePath);
+                    InputStreamReader reader = new InputStreamReader(io);
+                    Gson gson = new Gson();
+                    _Instance = gson.fromJson(reader, FuelPassModel.class);
+                    reader.close();
+                } catch (Exception ex) {
+                    Log.d(TAG, ex.toString());
+                    return new FuelPassModel();
+                }
             }
+
+            if (_Instance == null)
+                _Instance = new FuelPassModel();
         }
 
         return _Instance;
     }
 
-    public static boolean SaveInstance(Context c)
-    {
-        try
-        {
-            OutputStream io = c.openFileOutput(FilePath,Context.MODE_PRIVATE);
+
+    public static boolean SaveInstance(Context c) {
+        return FuelPassModel.SaveInstance(c, null);
+    }
+
+    public static boolean SaveInstance(Context c, Bundle b) {
+        if (b != null) {
+            b.putParcelable(TAG, _Instance);
+        }
+        try {
+            OutputStream io = c.openFileOutput(FilePath, Context.MODE_PRIVATE);
             OutputStreamWriter writer = new OutputStreamWriter(io);
             Gson gson = new Gson();
             String json = gson.toJson(_Instance);
@@ -136,10 +187,8 @@ public class FuelPassModel implements Parcelable {
             writer.flush();
             writer.close();
             return true;
-        }
-        catch (Exception ex)
-        {
-            Log.d(TAG,ex.toString());
+        } catch (Exception ex) {
+            Log.d(TAG, ex.toString());
             return false;
         }
     }

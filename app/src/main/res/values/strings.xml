@@ -9,5 +9,6 @@
     <string name="action_nfc">NFC</string>
     <string name="clone_tag">Touch a tag to clone it</string>
     <string name="close_tag_success">Tag cloned</string>
+    <string name="fuel_type_textview">Fuel type</string>
 
 </resources>

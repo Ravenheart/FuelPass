@@ -33,8 +33,10 @@ public class FuelPassActivity extends Activity implements FuelPassFragment.OnFra
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_fuel_pass, menu);
-        return true;
+        //getMenuInflater().inflate(R.menu.menu_fuel_pass, menu);
+        //return true;
+
+        return false;
     }
 
     @Override

@@ -4,6 +4,6 @@
         android:id="@+id/action_nfc"
         android:title="@string/action_nfc"
         android:orderInCategory="100"
-        android:icon="@android:drawable/ic_menu_send"
+        android:icon="@android:drawable/ic_dialog_info"
         android:showAsAction="ifRoom" />
 </menu>

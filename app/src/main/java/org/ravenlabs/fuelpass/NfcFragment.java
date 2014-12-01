@@ -46,8 +46,6 @@ public class NfcFragment extends DialogFragment implements TagReader.IReaderCall
         View v = inflater.inflate(R.layout.fragment_nfc, container, false);
 
         mReader = new TagReader(getActivity(), this);
-        mReader.Initialize();
-        mReader.EnableReaderMode();
 
         return v;
     }
@@ -61,7 +59,9 @@ public class NfcFragment extends DialogFragment implements TagReader.IReaderCall
     @Override
     public void onResume() {
         super.onResume();
-       mReader.EnableReaderMode();
+
+        mReader.Initialize();
+        mReader.EnableReaderMode();
     }
 
     public void onButtonPressed(Uri uri) {
@@ -93,7 +93,7 @@ public class NfcFragment extends DialogFragment implements TagReader.IReaderCall
     }
 
     public void OnToast(String message) {
-        Toast.makeText(getActivity(),message, Toast.LENGTH_LONG);
+        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG);
     }
 
     /**
