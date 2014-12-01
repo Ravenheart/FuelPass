@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="gazprom_color">#33b5e5</color>
+    <color name="gazprom_blue_light">#33b5e5</color>
+    <color name="gazprom_blue_dark">#0099cc</color>
+    <color name="gazprom_silver_light">#e7e7e7</color>
+    <color name="gazprom_silver_dark">#cccccc</color>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">FuelPass</string>
+    <string name="action_settings">Settings</string>
+    <string name="discount_textview">Discount (per liter)</string>
+    <string name="fuelprice_textview">Price (per liter)</string>
+    <string name="amount_textview">Amount</string>
+    <string name="action_nfc">NFC</string>
+    <string name="clone_tag">Touch a tag to clone it</string>
+    <string name="close_tag_success">Tag cloned</string>
+
+</resources>
